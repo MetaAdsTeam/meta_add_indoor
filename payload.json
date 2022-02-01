@@ -1,0 +1,21 @@
+{
+  "note":"","skip_bulk_update":false,"tags":[],"custom_fields":[],"timings":[[["00:00:00","23:59:59"]],[["00:00:00","23:59:59"]],[["00:00:00","23:59:59"]],[["00:00:00","23:59:59"]],[["00:00:00","23:59:59"]],[["00:00:00","23:59:59"]],[["00:00:00","23:59:59"]]],"power_control":false,"monitoring":false,"download_interval":[[["00:00:00","23:59:59"]],[["00:00:00","23:59:59"]],[["00:00:00","23:59:59"]],[["00:00:00","23:59:59"]],[["00:00:00","23:59:59"]],[["00:00:00","23:59:59"]],[["00:00:00","23:59:59"]]],"p2p_mode":false,"storage":{
+},"commands":[
+  {
+    "action":{
+    "type":"system","event":"command","command":"restart","params":[],
+
+  }}],"profile_id":582,"dictionaries":[{
+  "reference_id":5,"items":[],"excluded_items":[]
+},{
+  "reference_id":6,"items":[],"excluded_items":[]
+
+}]}
+
+ "special": {"range": [null, null], "week_days": '
+ '[1, 1, 1, 1, 1, 1, 1], "duration": 2, "gender": 3, "vast_interrupt": true}, '
+ '"sequence": 4, "playlist_key": "134401038047812-random"},
+
+'"special": {"range": [null, null], "week_days":
+[1, 1, 1, 1, 1, 1, 1], "vast_interrupt": true, "duration": 50, "gender": 3},
+"sequence": 0, ' '"playlist_key": "4038610356891693-random"}

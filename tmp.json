@@ -1,0 +1,43 @@
+{
+  "gender":3,"name":"Кампания 26 Янв 22 ","duration":0,"type":1,"group_id":0,"playlist":[{
+  "zones":[258533],"name":"-1-1-1","key":"1945171348654002-random"},{
+  "zones":[258534],"name":"-1-1-1","key":"134401038047812-random"},{
+  "zones":[258535],"name":"-1-1-1","key":"4268448912005434-random"}
+],
+  "content":[
+    {
+  "content_id":389317,"zones":[],"key":"918489296614844-random","special":{
+    "range":[null,null],"week_days":[1,1,1,1,1,1,1],"duration":2,"gender":3,"vast_interrupt":true},"sequence":1,"playlist_key":"1945171348654002-random"
+    },{
+  "content_id":389320,"zones":[],"key":"1592373878499562-random","special":{
+    "range":[null,null],"week_days":[1,1,1,1,1,1,1],"duration":2,"gender":3,"vast_interrupt":true},"sequence":2,"playlist_key":"1945171348654002-random"},{
+  "content_id":389318,"zones":[],"key":"3177142646843724-random","special":{
+    "range":[null,null],"week_days":[1,1,1,1,1,1,1],"duration":2,"gender":3,"vast_interrupt":true},"sequence":3,"playlist_key":"1945171348654002-random"},{
+  "content_id":389319,"zones":[],"key":"1759113574570304-random","special":{
+    "range":[null,null],"week_days":[1,1,1,1,1,1,1],"duration":2,"gender":3,"vast_interrupt":true},"sequence":4,"playlist_key":"1945171348654002-random"},{
+  "content_id":389317,"zones":[],"key":"1790383911101858-random","special":{
+    "range":[null,null],"week_days":[1,1,1,1,1,1,1],"duration":2,"gender":3,"vast_interrupt":true},"sequence":4,"playlist_key":"134401038047812-random"},{
+  "content_id":389320,"zones":[],"key":"7418447755642597-random","special":{
+    "range":[null,null],"week_days":[1,1,1,1,1,1,1],"duration":2,"gender":3,"vast_interrupt":true},"sequence":3,"playlist_key":"134401038047812-random"},{
+  "content_id":389318,"zones":[],"key":"5492837503219645-random","special":{
+    "range":[null,null],"week_days":[1,1,1,1,1,1,1],"duration":2,"gender":3,"vast_interrupt":true},"sequence":2,"playlist_key":"134401038047812-random"},{
+  "content_id":389319,"zones":[],"key":"510950382910506-random","special":{
+    "range":[null,null],"week_days":[1,1,1,1,1,1,1],"duration":2,"gender":3,"vast_interrupt":true},"sequence":1,"playlist_key":"134401038047812-random"},{
+  "content_id":389317,"zones":[],"key":"571684024887150-random","special":{
+    "range":[null,null],"week_days":[1,1,1,1,1,1,1],"duration":5,"gender":3,"vast_interrupt":true},"sequence":4,
+  "playlist_key":"4268448912005434-random"},{
+  "content_id":389320,"zones":[],"key":"7740094223478767-random","special":{
+    "range":[null,null],"week_days":[1,1,1,1,1,1,1],"duration":3,"gender":3,"vast_interrupt":true},"sequence":2,"playlist_key":"4268448912005434-random"},{
+  "content_id":389318,"zones":[],"key":"8006304160449699-random","special":{
+    "range":[null,null],"week_days":[1,1,1,1,1,1,1],"duration":2,"gender":3,"vast_interrupt":true},"sequence":1,"playlist_key":"4268448912005434-random"},{
+  "content_id":389319,"zones":[],"key":"1577369635113714-random","special":{
+    "range":[null,null],"week_days":[1,1,1,1,1,1,1],"duration":4,"gender":3,"vast_interrupt":true},"sequence":3,"playlist_key":"4268448912005434-random"},{
+  "content_id":389316,"zones":[258536],"key":"5194149554271065-random","special":{
+    "range":[null,null],"week_days":[1,1,1,1,1,1,1],"gender":3,"vast_interrupt":true}}],"project_id":14765,"revision_id":22208,"tags":[],"references":[{
+  "id":3,"items":[]},{
+  "id":5,"items":[]},{
+  "id":6,"items":[]}],"profiles":[],"devices_delta":{
+  "selected":[30637],"unselected":[]},"groups_delta":{
+  "selected":[],"unselected":[]},"timing":{
+  "global":{
+    "time":["(00:00:00-23:59:59);d1111111"],"start":1643036400,"end":1645919999}}}
