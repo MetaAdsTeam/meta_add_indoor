@@ -89,10 +89,12 @@ class AddRealityHandler:
 
     def add_content(self, file_path: str):
         file_name = file_path.split('/')[-1]
+        print('add_content file_name', file_name)
         r_existed_content = self.session.get(
             'https://api.ar.digital/v5/platforms/2058/content/groups/0?',
             headers=self.headers
         )
+        print('existed_content', r_existed_content.json())
         existed_content = {content['name']: content['id'] for content in r_existed_content.json()['content']}
 
         if not existed_content.get(file_name):
@@ -121,6 +123,8 @@ class AddRealityHandler:
                     headers=headers,
                     files=files, data=data_
                 )
+                print(tmp)
+                print(tmp.json())
                 file_id = tmp.json().get('file_id')
 
     def delete_campaign(self, campaign_id: int):
