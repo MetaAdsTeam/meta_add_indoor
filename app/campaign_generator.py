@@ -1,7 +1,7 @@
 from random import random
 from typing import Optional
 
-from app import data_classes as dc
+from app import data_classes as dc, utils
 
 
 def key_generator():
@@ -42,7 +42,7 @@ def create_content(content_id):
 
 def create_campaign(content_id: int, campaign: 'dc.AdTaskConfig'):
     return {
-        'gender': 3, 'name': f'{campaign.name}-{campaign.start_date}', 'playlist': [],
+        'gender': 3, 'name': f'{campaign.name}-{campaign.start_date}-{utils.file_id_generator()}', 'playlist': [],
         'duration': campaign.end_date - campaign.start_date,
         'content': create_content(content_id),
         'project_id': 13441,
