@@ -84,7 +84,8 @@ class AddRealityHandler:
                 break
             yield data
 
-    def add_content(self, file_name: str):
+    def add_content(self, file_path: str):
+        file_name = file_path.split('/')[-1]
         r_existed_content = self.session.get(
             'https://api.ar.digital/v5/platforms/2058/content/groups/0?',
             headers=self.headers
@@ -92,7 +93,7 @@ class AddRealityHandler:
         existed_content = {content['name']: content['id'] for content in r_existed_content.json()['content']}
 
         if not existed_content.get(file_name):
-            size = os.path.getsize(f'{context.content_path}/{file_name}')
+            size = os.path.getsize(file_path)
             file_id = None
             headers = self.headers
 
@@ -102,7 +103,7 @@ class AddRealityHandler:
                 'size': size,
                 'decode': True,
             }
-            file_object = open(f'{context.content_path}/{file_name}', "rb")
+            file_object = open(file_path, "rb")
 
             for chunk in self.read_in_chunks(file_object, 512_000):
                 files = {
