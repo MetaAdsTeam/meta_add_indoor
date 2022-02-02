@@ -4,7 +4,7 @@ from threading import Thread
 
 import app.data_classes as dc
 from app import campaign_generator
-from main import AddRealityHandler
+from app.main import AddRealityHandler
 
 
 class AdProcessor:
