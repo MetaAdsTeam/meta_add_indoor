@@ -125,7 +125,7 @@ class AddRealityHandler:
                 )
                 print(tmp)
                 print(tmp.json())
-                file_id = tmp.json().get('file_id')
+                file_id = tmp.json().get('content', {}).get('id')
 
     def delete_campaign(self, campaign_id: int):
         data_ = {
