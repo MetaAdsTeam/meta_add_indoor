@@ -1,4 +1,5 @@
 from datetime import datetime, date
+from random import random
 from typing import Optional, TypeVar
 
 from app import exceptions
@@ -56,3 +57,7 @@ def date_from_string_safe(ts: str) -> date:
 
 def convert_time(start: datetime, end: datetime):
     return int(start.timestamp()), int(end.timestamp())
+
+
+def file_id_generator():
+    return int(random() * 10 ** 6)

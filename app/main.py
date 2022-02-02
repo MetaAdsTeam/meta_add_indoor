@@ -1,11 +1,9 @@
-import datetime
 import os
 
 import requests
 import json
 
-import app.campaign_generator
-from app import data_classes as dc, enums
+from app import data_classes as dc
 from app import context
 
 
@@ -78,6 +76,14 @@ class AddRealityHandler:
 
         return res.get(c_name)
 
+    @staticmethod
+    def read_in_chunks(file_object, chunk_size):
+        while True:
+            data = file_object.read(chunk_size)
+            if not data:
+                break
+            yield data
+
     def add_content(self, file_name: str):
         r_existed_content = self.session.get(
             'https://api.ar.digital/v5/platforms/2058/content/groups/0?',
@@ -87,17 +93,31 @@ class AddRealityHandler:
 
         if not existed_content.get(file_name):
             size = os.path.getsize(f'{context.content_path}/{file_name}')
-            with open(f'{context.content_path}/{file_name}', 'rb') as f:
-                files = {'chunk': f}
-                data_ = {
-                    'name': file_name,
-                    'group_id': 0,
-                    'size': size}
-                self.session.post(
+            file_id = None
+            headers = self.headers
+
+            data_ = {
+                'name': file_name,
+                'group_id': 0,
+                'size': size,
+                'decode': True,
+            }
+            file_object = open(f'{context.content_path}/{file_name}', "rb")
+
+            for chunk in self.read_in_chunks(file_object, 512_000):
+                files = {
+                    'chunk': chunk,
+                }
+                if file_id is not None:
+                    data_['file_id'] = file_id,
+                headers['content-length'] = f'{len(chunk)}'
+
+                tmp = self.session.post(
                     'https://api.ar.digital/v5/platforms/2058/content/file/upload',
-                    headers=self.headers,
+                    headers=headers,
                     files=files, data=data_
                 )
+                file_id = tmp.json().get('file_id')
 
     def delete_campaign(self, campaign_id: int):
         data_ = {
@@ -123,62 +143,3 @@ class AddRealityHandler:
 
         self.start_campaign(campaign_id)
 
-    def start(self):
-        self.authorization()
-        campaigns = self.get_campaigns()
-        for cpm in campaigns:
-            self.delete_campaign(cpm)
-        # campaigns = get_campaigns(session)
-        # for cmp in campaigns:
-        #     # if cmp.id != 29971:
-        #     delete_campaign(session, cmp.id)
-        # r_me = session.get('https://api.ar.digital/v5/users/me', headers=headers)
-        # existed_content = get_uploaded_content(session)
-        #
-        # test_func = utils.create_campaign('Тестовая кампания')
-
-        # update_content(session, existed_content)
-        # reload_player(session, 30637)
-        # pause_campaign(session, 29923)
-        # start_campaign(session, 29923)
-        # devices = get_devices(session)
-        # print(devices)
-
-        data_ = dc.AppTask(
-            name='Test campaign',
-            content=[
-                dc.Content(
-                    389317,
-                    enums.FourSections.First.value,
-                    5,
-                ),
-                dc.Content(
-                    389318,
-                    enums.FourSections.Second.value,
-                    5,
-                ),
-                dc.Content(
-                    389319,
-                    enums.FourSections.Third.value,
-                    5,
-                ),
-                dc.Content(
-                    389320,
-                    enums.FourSections.Fourth.value,
-                    5,
-                )
-            ],
-            device_id=30637,
-            project_id=14765,
-            start_date=datetime.datetime(2022, 1, 1),
-            end_date=datetime.datetime(2022, 5, 5),
-        )
-
-        test = app.campaign_generator.create_campaign(data_)
-
-        self.add_and_start_campaign(test)
-
-
-if __name__ == '__main__':
-    handler = AddRealityHandler('nik@brandvision.io', 'qazwsx12')
-    handler.start()

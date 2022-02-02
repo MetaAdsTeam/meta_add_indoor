@@ -31,10 +31,6 @@ def content_special(
     return content_special_res
 
 
-def create_zone(z_id):
-    return {"zones": [217226], "name": '-1-1-1', "key": key_generator()}
-
-
 def create_content(content_id):
     content = [{
         "content_id": content_id,
@@ -45,7 +41,6 @@ def create_content(content_id):
 
 
 def create_campaign(content_id: int, campaign: 'dc.AdTaskConfig'):
-
     return {
         'gender': 3, 'name': f'{campaign.name}-{campaign.start_date}', 'playlist': [],
         'duration': campaign.end_date - campaign.start_date,
