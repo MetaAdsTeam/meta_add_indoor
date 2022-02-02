@@ -65,7 +65,8 @@ class AddRealityHandler:
         self.session.put(f'https://api.ar.digital/v5/platforms/2058/campaign/{campaign_id}', headers=self.headers,
                          data=json.dumps(play_ping))
 
-    def get_content_id(self, c_name: str) -> int:
+    def get_content_id(self, file_path: str) -> int:
+        file_name = file_path.split('/')[-1]
         r_uploaded_content = self.session.get(
             'https://api.ar.digital/v5/platforms/2058/content/groups/0',
             headers=self.headers
@@ -74,7 +75,7 @@ class AddRealityHandler:
         for entity in r_uploaded_content.json()['content']:
             res[entity['name']] = entity['id']
 
-        return res.get(c_name)
+        return res.get(file_name)
 
     @staticmethod
     def read_in_chunks(file_object, chunk_size):
@@ -137,6 +138,7 @@ class AddRealityHandler:
     def add_and_start_campaign(self, created_campaign):
         campaign = self.session.post('https://api.ar.digital/v6/platforms/2058/campaign', headers=self.headers,
                                      data=json.dumps(created_campaign))
+        print(campaign.content)
         campaign_id = json.loads(campaign.content)['id']
         add_camp = self.session.put(f'https://api.ar.digital/v6/platforms/2058/campaign/{campaign_id}',
                                     headers=self.headers,
