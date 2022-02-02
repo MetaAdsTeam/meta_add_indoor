@@ -32,10 +32,15 @@ class AdProcessor:
 
     def handle(self, task: 'dc.AdTaskConfig'):
         self.handler.authorization()
+        print('authorized')
         content_id = self.handler.get_content_id(task.name)
+        print('content_id', content_id)
         if not content_id:
             self.handler.add_content(task.name)
+            print('added', task.name)
             content_id = self.handler.get_content_id(task.name)
+            print('id', content_id)
 
         created_campaign = campaign_generator.create_campaign(content_id, task)
+        print(created_campaign)
         self.handler.add_and_start_campaign(created_campaign)
