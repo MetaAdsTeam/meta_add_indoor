@@ -72,7 +72,7 @@ class AddRealityHandler:
             'https://api.ar.digital/v5/platforms/2058/content/groups/0',
             headers=self.headers
         )
-        print('uploaded content', r_uploaded_content)
+        print('uploaded content', r_uploaded_content.json())
         res = {}
         for entity in r_uploaded_content.json()['content']:
             res[entity['name']] = entity['id']
