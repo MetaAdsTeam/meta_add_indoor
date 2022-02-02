@@ -67,14 +67,16 @@ class AddRealityHandler:
 
     def get_content_id(self, file_path: str) -> int:
         file_name = file_path.split('/')[-1]
+        print('file_name', file_name)
         r_uploaded_content = self.session.get(
             'https://api.ar.digital/v5/platforms/2058/content/groups/0',
             headers=self.headers
         )
+        print('uploaded content', r_uploaded_content)
         res = {}
         for entity in r_uploaded_content.json()['content']:
             res[entity['name']] = entity['id']
-
+        print(res)
         return res.get(file_name)
 
     @staticmethod
