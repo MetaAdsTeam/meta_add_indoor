@@ -10,7 +10,7 @@ from app.handlers import UserPanel, CampaignsHandler
 
 
 class App:
-    def __init__(self, port: int = 5000):
+    def __init__(self, port: int = 4000):
         self.alive = False
         self.tasks_queue = Queue()
         self.executor = ThreadPoolExecutor()
