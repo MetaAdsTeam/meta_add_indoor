@@ -101,6 +101,7 @@ class AddRealityHandler:
             size = os.path.getsize(file_path)
             print('add_content size', size)
             file_id = None
+            chunk_id = None
             headers = self.headers
 
             data_ = {
@@ -139,8 +140,11 @@ class AddRealityHandler:
                     )
                     print('add_content ', chunk_res)
                     print('add_content ', chunk_res.json())
-                    file_id = chunk_res.json()['file_id']
+                    if chunk_id is None:
+                        chunk_id = chunk_res.json()['file_id']
                     print('add_content file_id', file_id)
+            print()
+            print('content has been added')
 
     def delete_campaign(self, campaign_id: int):
         data_ = {
