@@ -67,12 +67,15 @@ class AddRealityHandler:
 
     def get_content_id(self, file_path: str) -> int:
         file_name = file_path.split('/')[-1]
-        print('file_name', file_name)
+        print('get content file_name', file_name)
         r_uploaded_content = self.session.get(
             'https://api.ar.digital/v5/platforms/2058/content/groups/0',
             headers=self.headers
         )
-        print('uploaded content', r_uploaded_content.json())
+        print('\n')
+        print('get content file_name', file_name)
+        print('\n')
+        print('get content uploaded content', r_uploaded_content.json())
         res = {}
         for entity in r_uploaded_content.json()['content']:
             res[entity['name']] = entity['id']
@@ -144,7 +147,7 @@ class AddRealityHandler:
                     if chunk_id is None:
                         chunk_id = chunk_res.json()['file_id']
                         data_['file_id'] = chunk_id,
-                    print('add_content file_id', file_id)
+                    print('add_content file_id', chunk_id)
             print()
             print('content has been added')
 
