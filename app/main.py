@@ -110,24 +110,37 @@ class AddRealityHandler:
                 'decode': True,
             }
             file_object = open(file_path, "rb")
-
-            for chunk in self.read_in_chunks(file_object, 512_000):
+            if size < 512_000:
                 files = {
-                    'chunk': chunk,
+                    'chunk': file_object,
                 }
-                if file_id is not None:
-                    data_['file_id'] = file_id,
-                headers['content-length'] = f'{len(chunk)}'
-
                 chunk_res = self.session.post(
                     'https://api.ar.digital/v5/platforms/2058/content/file/upload',
                     headers=headers,
                     files=files, data=data_
                 )
-                print('add_content ', chunk_res)
-                print('add_content ', chunk_res.json())
+                print('add_content < 512 ', chunk_res)
+                print('add_content < 512 ', chunk_res.json())
                 file_id = chunk_res.json()['content']['id']
-                print('add_content file_d', file_id)
+                print('add_content file_id', file_id)
+            else:
+                for chunk in self.read_in_chunks(file_object, 512_000):
+                    files = {
+                        'chunk': chunk,
+                    }
+                    if file_id is not None:
+                        data_['file_id'] = file_id,
+                    headers['content-length'] = f'{len(chunk)}'
+
+                    chunk_res = self.session.post(
+                        'https://api.ar.digital/v5/platforms/2058/content/file/upload',
+                        headers=headers,
+                        files=files, data=data_
+                    )
+                    print('add_content ', chunk_res)
+                    print('add_content ', chunk_res.json())
+                    file_id = chunk_res.json()['file_id']
+                    print('add_content file_id', file_id)
 
     def delete_campaign(self, campaign_id: int):
         data_ = {

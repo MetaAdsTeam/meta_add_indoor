@@ -7,6 +7,8 @@ from app import campaign_generator
 from app.main import AddRealityHandler
 
 thread_cnt = 0
+
+
 class AdProcessor:
     def __init__(self, tasks_queue: Queue['dc.AdTaskConfig']):
         self.alive = False
