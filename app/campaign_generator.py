@@ -43,7 +43,7 @@ def create_content(content_id):
 def create_campaign(content_id: int, campaign: 'dc.AdTaskConfig'):
     return {
         'gender': 3, 'name': f'{campaign.name}-{campaign.start_date}-{utils.file_id_generator()}', 'playlist': [],
-        'duration': campaign.end_date - campaign.start_date,
+        'duration': None,
         'content': create_content(content_id),
         'project_id': 13441,
         'devices_delta': {
@@ -51,6 +51,6 @@ def create_campaign(content_id: int, campaign: 'dc.AdTaskConfig'):
         },
         'timing': {
             'global': {
-                'start': campaign.start_date, 'end': campaign.end_date}
+                'start': None, 'end': None}
         }
     }
