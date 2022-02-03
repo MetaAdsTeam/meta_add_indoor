@@ -94,11 +94,12 @@ class AddRealityHandler:
             'https://api.ar.digital/v5/platforms/2058/content/groups/0?',
             headers=self.headers
         )
-        print('existed_content', r_existed_content.json())
+        print('add_content existed_content', r_existed_content.json())
         existed_content = {content['name']: content['id'] for content in r_existed_content.json()['content']}
 
         if not existed_content.get(file_name):
             size = os.path.getsize(file_path)
+            print('add_content size', size)
             file_id = None
             headers = self.headers
 
@@ -118,14 +119,15 @@ class AddRealityHandler:
                     data_['file_id'] = file_id,
                 headers['content-length'] = f'{len(chunk)}'
 
-                tmp = self.session.post(
+                chunk_res = self.session.post(
                     'https://api.ar.digital/v5/platforms/2058/content/file/upload',
                     headers=headers,
                     files=files, data=data_
                 )
-                print(tmp)
-                print(tmp.json())
-                file_id = tmp.json().get('content', {}).get('id')
+                print('add_content ', chunk_res)
+                print('add_content ', chunk_res.json())
+                file_id = chunk_res.json()['content']['id']
+                print('add_content file_d', file_id)
 
     def delete_campaign(self, campaign_id: int):
         data_ = {

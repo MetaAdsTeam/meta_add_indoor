@@ -43,6 +43,7 @@ class AdProcessor:
         content_id = self.handler.get_content_id(task.name)
         print('content_id', content_id)
         if not content_id:
+            print('add content....')
             self.handler.add_content(task.name)
             print('added', task.name)
             content_id = self.handler.get_content_id(task.name)
