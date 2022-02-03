@@ -66,6 +66,16 @@ class AddRealityHandler:
                          data=json.dumps(play_ping))
 
     def get_content_id(self, file_path: str) -> int:
+        print('\n')
+        print('\n')
+        print('\n')
+        print(self.session.get(
+            'https://api.ar.digital/v5/platforms/2058/content/groups/0?',
+            headers=self.headers
+        ))
+        print('\n')
+        print('\n')
+        print('\n')
         file_name = file_path.split('/')[-1]
         print('get content file_name', file_name)
         r_uploaded_content = self.session.get(
