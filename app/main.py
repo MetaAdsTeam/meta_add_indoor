@@ -75,6 +75,8 @@ class AddRealityHandler:
         print('\n')
         print('get content file_name', file_name)
         print('\n')
+        print('get content uploaded content req', r_uploaded_content)
+        print('\n')
         print('get content uploaded content', r_uploaded_content.json())
         res = {}
         for entity in r_uploaded_content.json()['content']:
