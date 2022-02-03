@@ -146,13 +146,24 @@ class AddRealityHandler:
             print()
             print('content has been added')
 
-    def delete_campaign(self, campaign_id: int):
+    def clear_archive(self):
+        r_archived_campaigns = self.session.get(
+            'https://api.ar.digital/v5/platforms/2058/campaign/archive',
+            headers=self.headers)
+        for campaign in r_archived_campaigns.json()['campaigns']:
+            self.session.delete(f'https://api.ar.digital/v5/platforms/2058/campaign/{campaign["id"]}',
+                                headers=self.headers)
+
+    def delete_campaigns(self, campaign_ids: list[int] = None):
+        if campaign_ids is None:
+            campaign_ids = self.get_campaigns()
         data_ = {
             'is_archived': True
         }
-        self.session.put(f'https://api.ar.digital/v5/platforms/2058/campaign/{campaign_id}', headers=self.headers,
-                         data=json.dumps(data_))
-        self.session.delete(f'https://api.ar.digital/v5/platforms/2058/campaign/{campaign_id}', headers=self.headers)
+        for campaign_id in campaign_ids:
+            self.session.put(f'https://api.ar.digital/v5/platforms/2058/campaign/{campaign_id}', headers=self.headers,
+                             data=json.dumps(data_))
+            self.session.delete(f'https://api.ar.digital/v5/platforms/2058/campaign/{campaign_id}', headers=self.headers)
 
     def get_campaigns(self):
         campaigns = self.session.get('https://api.ar.digital/v5/platforms/2058/campaign/groups/0',
@@ -170,4 +181,3 @@ class AddRealityHandler:
                                     data=json.dumps(created_campaign))
 
         self.start_campaign(campaign_id)
-

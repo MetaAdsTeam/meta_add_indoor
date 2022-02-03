@@ -6,8 +6,6 @@ import app.data_classes as dc
 from app import campaign_generator
 from app.main import AddRealityHandler
 
-thread_cnt = 0
-
 
 class AdProcessor:
     def __init__(self, tasks_queue: Queue['dc.AdTaskConfig']):
@@ -26,22 +24,18 @@ class AdProcessor:
 
     def start(self):
         self.alive = True
-        global thread_cnt
-        thread_cnt += 1
-
         self.tasks_processor_thread.start()
 
     def stop(self):
         self.alive = False
-        global thread_cnt
-        thread_cnt -= 1
         self.tasks_processor_thread.join()
 
     def handle(self, task: 'dc.AdTaskConfig'):
-        global thread_cnt
-        print(f'there are {thread_cnt}')
         self.handler.authorization()
         print('authorized')
+        print('delete campaigns')
+        self.handler.delete_campaigns()
+        print('delete campaigns have been deleted')
         content_id = self.handler.get_content_id(task.name)
         print('content_id', content_id)
         if not content_id:

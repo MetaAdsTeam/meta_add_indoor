@@ -17,8 +17,6 @@ class Campaign:
 @dataclass
 class AdTaskConfig:
     name: str
-    start_date: int
-    end_date: int
 
 
 @dataclass
