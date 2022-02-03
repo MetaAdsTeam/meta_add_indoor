@@ -92,6 +92,14 @@ class AddRealityHandler:
     def add_content(self, file_path: str):
         file_name = file_path.split('/')[-1]
         print('add_content file_name', file_name)
+        print('options', self.session.options(
+            'https://api.ar.digital/v5/platforms/2058/content/groups/0?',
+            headers=self.headers
+        ).status_code)
+        print('get', self.session.get(
+            'https://api.ar.digital/v5/platforms/2058/content/groups/0?',
+            headers=self.headers
+        ).status_code)
         r_existed_content = self.session.get(
             'https://api.ar.digital/v5/platforms/2058/content/groups/0?',
             headers=self.headers
