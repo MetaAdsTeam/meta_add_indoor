@@ -27,7 +27,7 @@ def content_special(
 
     content_special_res['vast_interrupt'] = vast_interrupt
 
-    content_special_res['duration'] = vast_interrupt
+    content_special_res['duration'] = duration
 
     content_special_res['gender'] = gender
 
