@@ -13,6 +13,7 @@ def content_special(
         end_date: int = None,
         week_days: Optional[list[int]] = None,
         vast_interrupt: Optional[bool] = True,
+        duration: int = 86399,
         gender: Optional[int] = 3
 ):
     content_special_res = {}
@@ -25,6 +26,8 @@ def content_special(
     content_special_res['week_days'] = week_days
 
     content_special_res['vast_interrupt'] = vast_interrupt
+
+    content_special_res['duration'] = vast_interrupt
 
     content_special_res['gender'] = gender
 
