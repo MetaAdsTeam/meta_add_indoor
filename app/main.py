@@ -68,13 +68,10 @@ class AddRealityHandler:
     def get_content_id(self, file_path: str) -> int:
         file_name = file_path.split('/')[-1]
         print('get content file_name', file_name)
-        try:
-            r_uploaded_content = self.session.get(
-                'https://api.ar.digital/v5/platforms/2058/content/groups/0?',
-                headers=self.headers
-            )
-        except Exception as e:
-            print(e)
+        r_uploaded_content = self.session.get(
+            'https://api.ar.digital/v5/platforms/2058/content/groups/0?',
+            headers=self.headers
+        )
         print('get content uploaded content req', r_uploaded_content)
         print('\n')
         print('get content uploaded content', r_uploaded_content.json())
