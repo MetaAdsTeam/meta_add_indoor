@@ -112,6 +112,8 @@ class AddRealityHandler:
             }
             file_object = open(file_path, "rb")
             if size < 512_000:
+                print('\n')
+                print('file less than 512_000\n')
                 files = {
                     'chunk': file_object,
                 }
@@ -126,11 +128,10 @@ class AddRealityHandler:
                 print('add_content file_id', file_id)
             else:
                 for chunk in self.read_in_chunks(file_object, 512_000):
+                    print('file more than 512_000\n')
                     files = {
                         'chunk': chunk,
                     }
-                    if file_id is not None:
-                        data_['file_id'] = file_id,
                     headers['content-length'] = f'{len(chunk)}'
 
                     chunk_res = self.session.post(
@@ -142,6 +143,7 @@ class AddRealityHandler:
                     print('add_content ', chunk_res.json())
                     if chunk_id is None:
                         chunk_id = chunk_res.json()['file_id']
+                        data_['file_id'] = chunk_id,
                     print('add_content file_id', file_id)
             print()
             print('content has been added')
