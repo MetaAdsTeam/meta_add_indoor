@@ -58,12 +58,12 @@ class AddRealityHandler:
     def authorization(self):
         self.logger.info(f"Authorizing user...")
 
-        data = self.data
         r_start_auth = self.session.post(
             'https://api.ar.digital/v5/auth/login/multi_step/start',
-            headers=self.headers
+            headers=self.headers,
+            data=self.data
         )
-        data['session_id'] = r_start_auth.json()['session_id']
+        self.data['session_id'] = r_start_auth.json()['session_id']
 
         r_post_login = self.session.post(
             'https://api.ar.digital/v5/auth/login/multi_step/check_login',
