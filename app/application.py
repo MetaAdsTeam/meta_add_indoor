@@ -6,10 +6,15 @@ from tornado.web import Application
 from tornado.ioloop import IOLoop
 
 from app.ad_processor import AdProcessor
-from app.handlers import UserPanel, CampaignsHandler
+from app.handlers import TurnOff, TurnOn
+
+from app.log_lib import get_logger
+
+logger = get_logger('API')
 
 
 class App:
+
     def __init__(self, port: int = 4000):
         self.alive = False
         self.tasks_queue = Queue()
@@ -25,20 +30,23 @@ class App:
     @property
     def urls(self):
         return [
-            ("/user_page", UserPanel),
-            ("/campaign_handler", CampaignsHandler),
+            ("/turn_on", TurnOn),
+            ("/turn_off", TurnOff),
         ]
 
     def start(self):
+        logger.info('Starting application...')
         self.alive = True
         self.add_signals()
         self.ad_processor.start()
         IOLoop.current().start()
 
     def stop(self):
+        logger.info('Stopping application...')
         IOLoop.current().stop()
         self.server.stop()
         self.ad_processor.stop()
+        logger.info('Stopped.')
 
     def add_signals(self):
         # Base SIG handlers

@@ -13,7 +13,7 @@ def content_special(
         end_date: int = None,
         week_days: Optional[list[int]] = None,
         vast_interrupt: Optional[bool] = True,
-        duration: int = 60,
+        duration: int = 60000,
         gender: Optional[int] = 3
 ):
     content_special_res = {}
@@ -46,7 +46,6 @@ def create_content(content_id):
 def create_campaign(content_id: int, campaign: 'dc.AdTaskConfig'):
     return {
         'gender': 3, 'name': f'{campaign.name}-{utils.file_id_generator()}', 'playlist': [],
-        'duration': 60,
         'content': create_content(content_id),
         'project_id': 13441,
         'devices_delta': {

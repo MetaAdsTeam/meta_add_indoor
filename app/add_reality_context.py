@@ -1,3 +1,4 @@
+import contextlib
 import os
 from os import path
 from typing import Any
@@ -10,6 +11,7 @@ class AddRealityContext:
 
     def __init__(self):
         self.project_path: str = path.dirname(path.dirname(path.realpath(__file__)))
+        self.logs_path: str = path.join(self.project_path, 'logs')
         default_config_path: str = path.join(self.project_path, './default.yaml')
         config_path: str = path.join(self.project_path, './config.yaml')
         with open(default_config_path, 'r') as f:
@@ -25,3 +27,7 @@ class AddRealityContext:
             self.config['user']['password']
         )
         self.content_path = path.join(self.project_path, './content')
+        for folder in (self.logs_path,):
+            if not path.exists(folder):
+                with contextlib.suppress(Exception):
+                    os.mkdir(folder)

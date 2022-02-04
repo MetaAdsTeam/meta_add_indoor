@@ -1,3 +1,4 @@
+import datetime
 import time
 from queue import Queue, Empty
 from threading import Thread
@@ -8,7 +9,7 @@ from app.main import AddRealityHandler
 
 
 class AdProcessor:
-    def __init__(self, tasks_queue: Queue['dc.AdTaskConfig']):
+    def __init__(self, tasks_queue: Queue['dc.TaskWrapper']):
         self.alive = False
         self.tasks_queue = tasks_queue
         self.tasks_processor_thread = Thread(target=self.task_processor)
@@ -17,8 +18,8 @@ class AdProcessor:
     def task_processor(self):
         while self.alive:
             try:
-                task = self.tasks_queue.get_nowait()
-                self.handle(task)
+                task_wrapper = self.tasks_queue.get_nowait()
+                self.handle(task_wrapper)
             except Empty:
                 time.sleep(.25)
 
@@ -30,21 +31,23 @@ class AdProcessor:
         self.alive = False
         self.tasks_processor_thread.join()
 
-    def handle(self, task: 'dc.AdTaskConfig'):
+    def handle(self, task_wrapper: 'dc.TaskWrapper'):
         self.handler.authorization()
-        print('authorized')
-        print('delete campaigns')
-        self.handler.delete_campaigns()
-        print('delete campaigns have been deleted')
-        content_id = self.handler.get_content_id(task.name)
-        print('content_id', content_id)
-        if not content_id:
-            print('add content....')
-            self.handler.add_content(task.name)
-            print('added', task.name)
-            content_id = self.handler.get_content_id(task.name)
-            print('id', content_id)
+        if task_wrapper.switch_to is True:
+            content_id = self.handler.get_content_id(task_wrapper.task.name)
+            if not content_id:
+                self.handler.add_content(task_wrapper.task.name)
+                content_id = self.handler.get_content_id(task_wrapper.task.name)
+                if not content_id:
+                    return
 
-        created_campaign = campaign_generator.create_campaign(content_id, task)
-        print(created_campaign)
-        self.handler.add_and_start_campaign(created_campaign)
+            received_time = datetime.datetime.fromtimestamp(task_wrapper.task.from_time)
+
+            while received_time > datetime.datetime.utcnow() + datetime.timedelta(seconds=1):
+                time.sleep(.25)
+
+            self.handler.delete_campaigns()
+            created_campaign = campaign_generator.create_campaign(content_id, task_wrapper.task)
+            self.handler.add_and_start_campaign(created_campaign)
+        else:
+            self.handler.delete_campaigns()
