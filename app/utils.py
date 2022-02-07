@@ -55,9 +55,13 @@ def date_from_string_safe(ts: str) -> date:
     return result
 
 
-def convert_time(start: datetime, end: datetime):
-    return int(start.timestamp()), int(end.timestamp())
-
-
 def file_id_generator():
     return int(random() * 10 ** 6)
+
+
+def read_in_chunks(file_object, chunk_size):
+    while True:
+        data = file_object.read(chunk_size)
+        if not data:
+            break
+        yield data

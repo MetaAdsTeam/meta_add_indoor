@@ -1,3 +1,4 @@
+import datetime
 from dataclasses import dataclass
 from typing import Optional
 
@@ -18,8 +19,8 @@ class Campaign:
 @dataclass
 class AdTaskConfig:
     name: str
-    from_time: int
-    to_time: int
+    from_time: datetime.datetime
+    to_time: datetime.datetime
 
 
 @dataclass

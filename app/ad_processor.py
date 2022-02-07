@@ -41,7 +41,7 @@ class AdProcessor:
                 if not content_id:
                     return
 
-            received_time = datetime.datetime.fromtimestamp(task_wrapper.task.from_time)
+            received_time = task_wrapper.task.from_time
 
             while received_time > datetime.datetime.utcnow() + datetime.timedelta(seconds=1):
                 time.sleep(.25)

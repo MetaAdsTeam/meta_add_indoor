@@ -1,10 +1,11 @@
 import os
 import pathlib
+from typing import Optional
 
 import requests
 import json
 
-from app import data_classes as dc
+from app import data_classes as dc, utils
 from app import context
 import app.log_lib as log_lib
 
@@ -28,23 +29,25 @@ class AddRealityHandler:
         return self.__logger
 
     def reload_player(self, device_id: int) -> None:
+        """
+        Reload the device with an advertising screen
+        :param device_id: id of device
+        :return: None
+        """
         self.logger.info('Reloading player')
-        options_resp = self.session.options(
+        with open('./payload.json') as json_file:
+            reload_data = json.load(json_file)
+        self.session.put(
             f'https://api.ar.digital/v5/platforms/2058/devices/{device_id}',
             headers=self.headers,
-            data=self.data)
-        if options_resp.status_code == 200:
-            with open('./payload.json') as json_file:
-                reload_data = json.load(json_file)
-            self.session.put(
-                f'https://api.ar.digital/v5/platforms/2058/devices/{device_id}',
-                headers=self.headers,
-                data=json.dumps(reload_data))
-            self.logger.info('Player has been reloaded')
-        else:
-            self.logger.info("Can't reload player")
+            data=json.dumps(reload_data))
+        self.logger.info('Player has been reloaded')
 
     def get_devices(self) -> list['dc.Device']:
+        """
+        Get list of devices with id, name and status.
+        :return: list['dc.Device']
+        """
         self.logger.info("Receiving devices")
         r_devices_json = self.session.get(
             'https://api.ar.digital/v5/platforms/2058/devices',
@@ -54,9 +57,14 @@ class AddRealityHandler:
         self.logger.info(f"Received devices: {res}")
         return res
 
-    def authorization(self):
+    def authorization(self) -> None:
+        """
+        Authorize user in api.
+        :return: None
+        """
         self.logger.info(f"Authorizing user...")
 
+        # start authorizing session
         r_start_auth = self.session.post(
             'https://api.ar.digital/v5/auth/login/multi_step/start',
             headers=self.headers,
@@ -64,18 +72,21 @@ class AddRealityHandler:
         )
         self.data['session_id'] = r_start_auth.json()['session_id']
 
+        # send request with login
         r_post_login = self.session.post(
             'https://api.ar.digital/v5/auth/login/multi_step/check_login',
             headers=self.headers,
             data=json.dumps(self.data)
         )
 
+        # send request with password
         r_post_pass = self.session.post(
             'https://api.ar.digital/v5/auth/login/multi_step/commit_pwd',
             headers=self.headers,
             data=json.dumps(self.data)
         )
 
+        # end authorizing session
         r_end_auth = self.session.post(
             'https://api.ar.digital/v5/auth/login/multi_step/finish',
             headers=self.headers,
@@ -86,7 +97,12 @@ class AddRealityHandler:
                 self.logger.critical(f"The user isn't authorized")
         self.logger.info(f"The user is authorized")
 
-    def pause_campaign(self, campaign_id):
+    def pause_campaign(self, campaign_id) -> None:
+        """
+        Pause the advertising campaign.
+        :param campaign_id: id of campaign
+        :return: None
+        """
         pause_ping = {
             'status': 'paused'
         }
@@ -97,7 +113,12 @@ class AddRealityHandler:
         )
         self.logger.info(f"Campaign {campaign_id} has been paused")
 
-    def start_campaign(self, campaign_id):
+    def start_campaign(self, campaign_id: int) -> None:
+        """
+        Play the advertising campaign.
+        :param campaign_id: id of campaign
+        :return: None
+        """
         play_ping = {
             'status': 'playing'
         }
@@ -108,45 +129,55 @@ class AddRealityHandler:
         )
         self.logger.info(f"Campaign {campaign_id} has been started")
 
-    def get_content_id(self, file_path: str) -> int:
+    def get_content_id(self, file_path: str) -> Optional[int]:
+        """
+        Get id of media file.
+        :param file_path: path to media file on server
+        :return: None
+        """
         self.logger.info(f"Receiving content from storage...")
+
+        # get filename form file path
         file_name = pathlib.Path(file_path).name
+
         r_uploaded_content = self.session.get(
             'https://api.ar.digital/v5/platforms/2058/content/groups/0?',
             headers=self.headers,
             data=self.data,
         )
-        res = {}
         for entity in r_uploaded_content.json()['content']:
-            res[entity['name']] = entity['id']
+            existed_content = entity.get(file_name)
+            if existed_content:
+                self.logger.info(f"Received content id: {entity['id']}")
+                return entity['id']
 
-        self.logger.info(f"Received content: {res}")
+        self.logger.info(f"Content {file_name} hasn't been added yet.")
+        return None
 
-        return res.get(file_name)
-
-    @staticmethod
-    def read_in_chunks(file_object, chunk_size):
-        while True:
-            data = file_object.read(chunk_size)
-            if not data:
-                break
-            yield data
-
-    def add_content(self, file_path: str):
+    def add_content(self, file_path: str) -> None:
+        """
+        Add media file to storage if it doesn't already exist there.
+        :param file_path: path to media file on server
+        :return: None
+        """
+        # get filename form file path
         file_name = pathlib.Path(file_path).name
         self.logger.info(f"Prepare to add {file_name}")
+
+        # get names of existed media files
         r_existed_content = self.session.get(
             'https://api.ar.digital/v5/platforms/2058/content/groups/0?',
             headers=self.headers,
             data=self.data
         )
-        existed_content = {content['name']: content['id'] for content in r_existed_content.json()['content']}
+        existed_content = {content['name'] for content in r_existed_content.json()['content']}
 
-        if not existed_content.get(file_name):
+        if file_name not in existed_content:
+
+            # get size of file in bytes
             size = os.path.getsize(file_path)
-            chunk_id = None
-            headers = self.headers
 
+            # request data for upload file
             data_ = {
                 'name': file_name,
                 'group_id': 0,
@@ -158,39 +189,52 @@ class AddRealityHandler:
                 if size < 512_000:
                     self.logger.info("Uploading entire object...")
 
+                    # file is represented in bytes
                     files = {
                         'chunk': f,
                     }
                     self.session.post(
                         'https://api.ar.digital/v5/platforms/2058/content/file/upload',
-                        headers=headers,
+                        headers=self.headers,
                         files=files,
                         data=data_
                     )
 
                 else:
-                    for chunk in self.read_in_chunks(f, 512_000):
+
+                    # needed for add extra headers with content-length
+                    headers = self.headers
+
+                    file_id = None
+
+                    for chunk in utils.read_in_chunks(f, 512_000):
                         self.logger.info("Uploading object by chunks")
+
                         files = {
                             'chunk': chunk,
                         }
                         headers['content-length'] = f'{len(chunk)}'
 
-                        chunk_res = self.session.post(
+                        r_chunk_res = self.session.post(
                             'https://api.ar.digital/v5/platforms/2058/content/file/upload',
                             headers=headers,
                             files=files,
                             data=data_
                         )
-                        if chunk_id is None:
-                            chunk_id = chunk_res.json()['file_id']
-                            data_['file_id'] = chunk_id,
+
+                        if file_id is None:
+                            file_id = r_chunk_res.json()['file_id']
+                            data_['file_id'] = file_id,
 
                 self.logger.info(f"{file_name} has been uploaded")
         else:
             self.logger.info(f"{file_name} already added")
 
     def clear_archive(self):
+        """
+        Clear archive.
+        :return: None
+        """
         self.logger.info("Clearing archive...")
         r_archived_campaigns = self.session.get(
             'https://api.ar.digital/v5/platforms/2058/campaign/archive',
@@ -225,6 +269,7 @@ class AddRealityHandler:
         self.logger.info("All campaigns has been deleted")
 
     def get_campaigns(self):
+
         self.logger.info(f"Receiving campaigns from storage...")
         r_campaigns = self.session.get(
             'https://api.ar.digital/v5/platforms/2058/campaign/groups/0',
