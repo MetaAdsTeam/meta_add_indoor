@@ -49,7 +49,7 @@ def create_campaign(content_id: int, campaign: 'dc.AdTaskConfig'):
         'content': create_content(content_id),
         'project_id': 13441,
         'devices_delta': {
-            'selected': [30820]
+            'selected': [30637]
         },
         'timing': {
             'global': {
