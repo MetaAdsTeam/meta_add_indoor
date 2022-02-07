@@ -145,10 +145,13 @@ class AddRealityHandler:
             headers=self.headers,
             data=self.data,
         )
+        res = {}
         for entity in r_uploaded_content.json()['content']:
-            if entity['name'] == file_name:
-                self.logger.info(f"Received id: {entity['id']}")
-                return entity['id']
+            res[entity['name']] = entity['id']
+
+        self.logger.info(f"Received content: {res}")
+
+        return res.get(file_name)
 
     def add_content(self, file_path: str) -> None:
         """
