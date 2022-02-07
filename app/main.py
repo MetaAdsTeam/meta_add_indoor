@@ -145,13 +145,10 @@ class AddRealityHandler:
             headers=self.headers,
             data=self.data,
         )
-        res = {}
         for entity in r_uploaded_content.json()['content']:
-            res[entity['name']] = entity['id']
-
-        self.logger.info(f"Received content: {res}")
-
-        return res.get(file_name)
+            if entity['name'] == file_name:
+                self.logger.info(f"Received id: {entity['id']}")
+                return entity['id']
 
     def add_content(self, file_path: str) -> None:
         """
@@ -229,7 +226,7 @@ class AddRealityHandler:
         else:
             self.logger.info(f"{file_name} already added")
 
-    def clear_archive(self):
+    def clear_archive(self) -> None:
         """
         Clear archive.
         :return: None
@@ -248,7 +245,12 @@ class AddRealityHandler:
             )
         self.logger.info("Archive has been cleared")
 
-    def delete_campaigns(self, campaign_ids: list[int] = None):
+    def delete_campaigns(self, campaign_ids: list[int] = None) -> None:
+        """
+        Archive and delete campaigns.
+        :param campaign_ids: list of advertising campaigns
+        :return: None
+        """
         self.logger.info("Deleting campaigns...")
         if campaign_ids is None:
             campaign_ids = self.get_campaigns()
@@ -267,8 +269,11 @@ class AddRealityHandler:
             )
         self.logger.info("All campaigns has been deleted")
 
-    def get_campaigns(self):
-
+    def get_campaigns(self) -> list[int]:
+        """
+        Archive and delete campaigns.
+        :return: list[int]
+        """
         self.logger.info(f"Receiving campaigns from storage...")
         r_campaigns = self.session.get(
             'https://api.ar.digital/v5/platforms/2058/campaign/groups/0',
@@ -279,7 +284,12 @@ class AddRealityHandler:
         self.logger.info(f"Received campaigns {res}")
         return res
 
-    def add_and_start_campaign(self, created_campaign):
+    def add_and_start_campaign(self, created_campaign: dict) -> None:
+        """
+        Create campaign, put generated data in it by request and start campaign.
+        :param created_campaign: dict of advertising campaign parameters.
+        :return: None.
+        """
         self.logger.info(f"Creating campaign...")
 
         campaign = self.session.post(
