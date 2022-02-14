@@ -2,16 +2,17 @@ import signal
 from concurrent.futures import ThreadPoolExecutor
 from queue import Queue
 
-from tornado.web import Application
+from tornado.web import Application, url
 from tornado.ioloop import IOLoop
 
+import app
 from app.ad_processor import AdProcessor
 from app.handlers import TurnOff, TurnOn
 
 from app.log_lib import get_logger
 
 logger = get_logger('API')
-
+context = app.context
 
 class App:
 
@@ -30,12 +31,13 @@ class App:
     @property
     def urls(self):
         return [
-            ("/turn_on", TurnOn),
-            ("/turn_off", TurnOff),
+            url(r"/turn_on/(\d+)", TurnOn),
+            url(r"/turn_off/(\d+)", TurnOff),
         ]
 
     def start(self):
         logger.info('Starting application...')
+        context.load_db_controller()
         self.alive = True
         self.add_signals()
         self.ad_processor.start()
@@ -46,6 +48,7 @@ class App:
         IOLoop.current().stop()
         self.server.stop()
         self.ad_processor.stop()
+        context.stop()
         logger.info('Stopped.')
 
     def add_signals(self):

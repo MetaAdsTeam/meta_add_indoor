@@ -12,14 +12,21 @@ from tornado.escape import json_decode
 from tornado.ioloop import IOLoop
 from tornado.web import RequestHandler
 
+import app
 from app import utils, exceptions
-
+import app.db_controller as db_controller
+import app.main_section as main_sections
+from sqlalchemy.orm import Session
+from app import context
 logger = logging.getLogger(__name__)
 
 
 class BaseHandler(RequestHandler):
     json_args: dict = {}
-
+    __sc: 'db_controller.SessionContext' = None
+    __sc_cm: 'db_controller.WithSessionContextManager' = None
+    __ms: 'main_sections.MS' = None
+    context: 'app.AddRealityContext' = context
     asyncio_loop: asyncio.AbstractEventLoop
     executor: ThreadPoolExecutor
     tasks_queue: Queue
@@ -171,3 +178,24 @@ class BaseHandler(RequestHandler):
         return self.request.headers.get("X-Real-Ip") or \
                self.request.headers.get("X-Forwarded-For") or \
                self.request.remote_ip
+
+    @property
+    def ms(self) -> 'main_sections.MS':
+        if self.__ms is None:
+            self.__ms = main_sections.MS(self.session)
+        return self.__ms
+
+    @property
+    def sc(self) -> 'db_controller.SessionContext':
+        if self.__sc is None:
+            self.__sc_cm = self.context.db_controller.with_sc()
+            self.__sc = self.__sc_cm.__enter__()
+        return self.__sc
+
+    @property
+    def session(self) -> Session:
+        return self.sc.session
+
+    def on_finish(self):
+        if self.__sc_cm is not None:
+            self.__sc_cm.__exit__(None, None, None)

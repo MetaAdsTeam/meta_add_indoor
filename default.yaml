@@ -1,3 +1,10 @@
-user:
-  login:
-  password:
+db:
+      server:
+      port:
+      name:
+      login:
+      password:
+      pool_size: 25
+      max_overflow: 100
+
+secret_key:

@@ -6,16 +6,16 @@ import requests
 import json
 
 from app import data_classes as dc, utils
-from app import context
 import app.log_lib as log_lib
 
 
 class AddRealityHandler:
     __logger: 'log_lib' = None
 
-    def __init__(self):
+    def __init__(self, user: 'dc.User'):
         self.session = requests.session()
-        self.data = {'login': context.user_config.login, 'password': context.user_config.password}
+        self.data = {'login': user.login, 'password': user.password}
+        self.platform_id = user.platform_id
 
         self.headers = {
             "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) "
@@ -38,10 +38,21 @@ class AddRealityHandler:
         with open('./payload.json') as json_file:
             reload_data = json.load(json_file)
         self.session.put(
-            f'https://api.ar.digital/v5/platforms/2058/devices/{device_id}',
+            f'https://api.ar.digital/v5/platforms/{self.platform_id}/devices/{device_id}',
             headers=self.headers,
             data=json.dumps(reload_data))
         self.logger.info('Player has been reloaded')
+
+    def get_device_info(self, device_id: int):
+        r_device_info = self.session.get(
+            f'https://api.ar.digital/v5/platforms/{self.platform_id}/devices/{device_id}',
+            headers=self.headers
+        )
+        list_of_campaigns_id = []
+        device_campaigns = r_device_info.json().get('campaigns', [])
+        for device in device_campaigns:
+            list_of_campaigns_id.append(device['id'])
+        return list_of_campaigns_id
 
     def get_devices(self) -> list['dc.Device']:
         """
@@ -49,11 +60,15 @@ class AddRealityHandler:
         :return: list['dc.Device']
         """
         self.logger.info("Receiving devices")
-        r_devices_json = self.session.get(
-            'https://api.ar.digital/v5/platforms/2058/devices',
+        r_existed_devices = self.session.get(
+            f'https://api.ar.digital/v5/platforms/{self.platform_id}/devices',
             headers=self.headers
         )
-        res = [dc.Device(device['id'], device['name'], device['status']) for device in r_devices_json.json()['devices']]
+        res = [
+            dc.Device(
+                device['id'],
+                device['name']
+            ) for device in r_existed_devices.json()['devices'] if device['status'] != 'offline']
         self.logger.info(f"Received devices: {res}")
         return res
 
@@ -92,6 +107,8 @@ class AddRealityHandler:
             headers=self.headers,
             data=json.dumps(self.data)
         )
+        self.headers.update({'Referrer Policy': 'strict-origin-when-cross-origin'})
+
         for resp in [r_post_login, r_post_pass, r_end_auth]:
             if resp.status_code != 200:
                 self.logger.critical(f"The user isn't authorized")
@@ -107,7 +124,7 @@ class AddRealityHandler:
             'status': 'paused'
         }
         self.session.put(
-            f'https://api.ar.digital/v5/platforms/2058/campaign/{campaign_id}',
+            f'https://api.ar.digital/v5/platforms/{self.platform_id}/campaign/{campaign_id}',
             headers=self.headers,
             data=json.dumps(pause_ping)
         )
@@ -123,7 +140,7 @@ class AddRealityHandler:
             'status': 'playing'
         }
         self.session.put(
-            f'https://api.ar.digital/v5/platforms/2058/campaign/{campaign_id}',
+            f'https://api.ar.digital/v5/platforms/{self.platform_id}/campaign/{campaign_id}',
             headers=self.headers,
             data=json.dumps(play_ping)
         )
@@ -141,7 +158,7 @@ class AddRealityHandler:
         file_name = pathlib.Path(file_path).name
 
         r_uploaded_content = self.session.get(
-            'https://api.ar.digital/v5/platforms/2058/content/groups/0?',
+            f'https://api.ar.digital/v5/platforms/{self.platform_id}/content/groups/0?',
             headers=self.headers,
             data=self.data,
         )
@@ -165,7 +182,7 @@ class AddRealityHandler:
 
         # get names of existed media files
         r_existed_content = self.session.get(
-            'https://api.ar.digital/v5/platforms/2058/content/groups/0?',
+            f'https://api.ar.digital/v5/platforms/{self.platform_id}/content/groups/0?',
             headers=self.headers,
             data=self.data
         )
@@ -193,7 +210,7 @@ class AddRealityHandler:
                         'chunk': f,
                     }
                     self.session.post(
-                        'https://api.ar.digital/v5/platforms/2058/content/file/upload',
+                        f'https://api.ar.digital/v5/platforms/{self.platform_id}/content/file/upload',
                         headers=self.headers,
                         files=files,
                         data=data_
@@ -215,7 +232,7 @@ class AddRealityHandler:
                         headers['content-length'] = f'{len(chunk)}'
 
                         r_chunk_res = self.session.post(
-                            'https://api.ar.digital/v5/platforms/2058/content/file/upload',
+                            f'https://api.ar.digital/v5/platforms/{self.platform_id}/content/file/upload',
                             headers=headers,
                             files=files,
                             data=data_
@@ -236,13 +253,13 @@ class AddRealityHandler:
         """
         self.logger.info("Clearing archive...")
         r_archived_campaigns = self.session.get(
-            'https://api.ar.digital/v5/platforms/2058/campaign/archive',
+            f'https://api.ar.digital/v5/platforms/{self.platform_id}/campaign/archive',
             headers=self.headers,
             data=self.data,
         )
         for campaign in r_archived_campaigns.json()['campaigns']:
             self.session.delete(
-                f'https://api.ar.digital/v5/platforms/2058/campaign/{campaign["id"]}',
+                f'https://api.ar.digital/v5/platforms/{self.platform_id}/campaign/{campaign["id"]}',
                 headers=self.headers,
                 data=self.data,
             )
@@ -255,18 +272,16 @@ class AddRealityHandler:
         :return: None
         """
         self.logger.info("Deleting campaigns...")
-        if campaign_ids is None:
-            campaign_ids = self.get_campaigns()
         data_ = self.data
-        data_['is_archived'] = True
+        data_['is_archived'] = True  # noqa
         for campaign_id in campaign_ids:
             self.session.put(
-                f'https://api.ar.digital/v5/platforms/2058/campaign/{campaign_id}',
+                f'https://api.ar.digital/v5/platforms/{self.platform_id}/campaign/{campaign_id}',
                 headers=self.headers,
                 data=json.dumps(data_)
             )
             self.session.delete(
-                f'https://api.ar.digital/v5/platforms/2058/campaign/{campaign_id}',
+                f'https://api.ar.digital/v5/platforms/{self.platform_id}/campaign/{campaign_id}',
                 headers=self.headers,
                 data=self.data
             )
@@ -279,7 +294,7 @@ class AddRealityHandler:
         """
         self.logger.info(f"Receiving campaigns from storage...")
         r_campaigns = self.session.get(
-            'https://api.ar.digital/v5/platforms/2058/campaign/groups/0',
+            f'https://api.ar.digital/v5/platforms/{self.platform_id}/campaign/groups/0',
             headers=self.headers,
             data=self.data
         )
@@ -296,7 +311,7 @@ class AddRealityHandler:
         self.logger.info(f"Creating campaign...")
 
         campaign = self.session.post(
-            'https://api.ar.digital/v6/platforms/2058/campaign',
+            f'https://api.ar.digital/v6/platforms/{self.platform_id}/campaign',
             headers=self.headers,
             data=json.dumps(created_campaign)
         )
@@ -306,7 +321,7 @@ class AddRealityHandler:
         self.logger.info(f"Campaign {campaign_id} has been created")
         self.session.put(
 
-            f'https://api.ar.digital/v6/platforms/2058/campaign/{campaign_id}',
+            f'https://api.ar.digital/v6/platforms/{self.platform_id}/campaign/{campaign_id}',
             headers=self.headers,
             data=json.dumps(created_campaign)
         )

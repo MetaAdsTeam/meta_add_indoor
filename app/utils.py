@@ -2,10 +2,13 @@ from datetime import datetime, date
 from random import random
 from typing import Optional, TypeVar
 
+import app
 from app import exceptions
+from cryptography.fernet import Fernet
 
 T_Any = TypeVar('T_Any')
 T_Any2 = TypeVar('T_Any2')
+context = app.context
 
 
 def datetime_from_string(ts: str, verify: bool = False) -> Optional[datetime]:
@@ -65,3 +68,15 @@ def read_in_chunks(file_object, chunk_size):
         if not data:
             break
         yield data
+
+
+def encode_password(password: str):
+    f = Fernet(context.secret_key)
+    encrypted_pass = f.encrypt(password.encode('utf-8'))
+    return encrypted_pass
+
+
+def decode_password(password: bytes):
+    f = Fernet(context.secret_key)
+    decrypted_pass = f.decrypt(password)
+    return decrypted_pass.decode('utf-8')
