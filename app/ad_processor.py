@@ -31,8 +31,6 @@ class AdProcessor:
         self.tasks_processor_thread.join()
 
     def handle(self, task_wrapper: 'dc.TaskWrapper'):
-
-        task_wrapper.task.name = r'C:\Users\admin\Documents\add_reality_2\content\2.png'
         handler = AddRealityHandler(task_wrapper.task.user_data)
         handler.authorization()
 
