@@ -37,7 +37,7 @@ def content_special(
 def create_content(content_id):
     content = [{
         "content_id": content_id,
-        "zones": [217226],
+        "zones": [265743],
         "special": content_special(),
     }]
     return content
