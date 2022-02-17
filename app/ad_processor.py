@@ -30,7 +30,8 @@ class AdProcessor:
         self.alive = False
         self.tasks_processor_thread.join()
 
-    def handle(self, task_wrapper: 'dc.TaskWrapper'):
+    @staticmethod
+    def handle(task_wrapper: 'dc.TaskWrapper'):
         handler = AddRealityHandler(task_wrapper.task.user_data)
         handler.authorization()
 

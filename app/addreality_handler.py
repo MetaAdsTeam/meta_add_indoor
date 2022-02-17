@@ -271,21 +271,34 @@ class AddRealityHandler:
         :param campaign_ids: list of advertising campaigns
         :return: None
         """
-        self.logger.info("Deleting campaigns...")
+        self.logger.info("Deleting playing campaigns...")
+
+        campaigns_for_delete = {}
+
+        playing_campaigns = self.session.get(
+            f'https://api.ar.digital/v5/platforms/{self.platform_id}/campaign/groups/0',
+            headers=self.headers,
+            data=json.dumps(self.data)
+        ).json()['campaigns']
+
+        for campaign in playing_campaigns:
+            campaigns_for_delete[campaign['id']] = campaign['status']
+
         data_ = self.data
         data_['is_archived'] = True  # noqa
         for campaign_id in campaign_ids:
-            self.session.put(
-                f'https://api.ar.digital/v5/platforms/{self.platform_id}/campaign/{campaign_id}',
-                headers=self.headers,
-                data=json.dumps(data_)
-            )
-            self.session.delete(
-                f'https://api.ar.digital/v5/platforms/{self.platform_id}/campaign/{campaign_id}',
-                headers=self.headers,
-                data=self.data
-            )
-        self.logger.info("All campaigns has been deleted")
+            if campaigns_for_delete[campaign_id] == 'playing':
+                self.session.put(
+                    f'https://api.ar.digital/v5/platforms/{self.platform_id}/campaign/{campaign_id}',
+                    headers=self.headers,
+                    data=json.dumps(data_)
+                )
+                self.session.delete(
+                    f'https://api.ar.digital/v5/platforms/{self.platform_id}/campaign/{campaign_id}',
+                    headers=self.headers,
+                    data=self.data
+                )
+        self.logger.info("All playing campaigns has been deleted")
 
     def get_campaigns(self) -> list[int]:
         """
