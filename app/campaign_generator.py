@@ -47,7 +47,7 @@ def create_campaign(content_id: int, campaign: 'dc.AdTaskConfig'):
     return {
         'gender': 3, 'name': f'{campaign.name}-{utils.file_id_generator()}', 'playlist': [],
         'content': create_content(content_id),
-        'project_id': 13441,
+        'project_id': 14993,
         'devices_delta': {
             'selected': [campaign.device_id]
         },
